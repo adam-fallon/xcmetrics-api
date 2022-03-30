@@ -5,7 +5,9 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
+const cors = require('cors');
 app.use(bodyParser.json());
+app.use(cors());
 const port = 3000;
 
 // Postgres
@@ -22,8 +24,8 @@ const pool = new Pool({
 const get_rows = (req, res, query, params) => {
   console.dir([query, params]);
   pool.query(query, params, (err, rows) => {
-    if (err) { res.status(400).json({'error': err }); }    
-    res.status(200).json({'rows': rows.rows});
+    if (err) { res.status(400).json({ 'error': err }); }
+    res.status(200).json({ 'rows': rows.rows });
   });
 };
 
@@ -51,7 +53,7 @@ app.get('/categories', (req, res) => {
 app.get('/groupschema', (req, res) => {
   const excluded_configuration = ["AND schema <> 'Clean Trainline' AND build_status = 'succeeded'"]
   get_rows(req, res,
-   `SELECT DISTINCT ON (schema)
+    `SELECT DISTINCT ON (schema)
       schema, 
       array_agg(id) as ids, 
       array_agg(day) as days, 
@@ -63,6 +65,6 @@ app.get('/groupschema', (req, res) => {
     FROM builds 
     WHERE was_suspended=False ${excluded_configuration} 
     GROUP BY schema`, []);
-  });
- 
+});
+
 app.listen(port, () => console.log(`xcmetrics-dashboard-api started on port ${port}`));
