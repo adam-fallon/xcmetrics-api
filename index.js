@@ -22,22 +22,14 @@ const pool = new Pool({
 const get_rows = (req, res, query, params) => {
   console.dir([query, params]);
   pool.query(query, params, (err, rows) => {
-    if (err) { res.status(400).json({'error': err }); }
+    if (err) { res.status(400).json({'error': err }); }    
     res.status(200).json({'rows': rows.rows});
   });
 };
 
 app.get('/builds', (req, res) => {
-  get_rows(req, res, 'SELECT * from builds', []);
-});
-
-app.post('/builds-by-user', (req, res) => {
-  const user_id = req.body.user_id;
-  get_rows(req, res, 'SELECT * from builds WHERE user_id = $1 limit 100', [user_id]);
-});
-
-app.get('/averages', (req, res) => {
-  get_rows(req, res, 'SELECT avg(duration), user_id from builds group by user_id', []);
+  const excluded_configuration = ["AND schema <> 'Clean Trainline' AND build_status = 'succeeded'"]
+  get_rows(req, res, `SELECT day, schema, build_status, duration, user_id, category, was_suspended from builds WHERE was_suspended=False ${excluded_configuration}`, []);
 });
 
 app.listen(port, () => console.log(`xcmetrics-dashboard-api started on port ${port}`));
