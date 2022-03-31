@@ -31,7 +31,7 @@ const get_rows = (req, res, query, params) => {
 
 app.get('/builds', (req, res) => {
   const excluded_configuration = ["AND schema <> 'Clean Trainline' AND build_status = 'succeeded'"]
-  get_rows(req, res, `SELECT day, schema, build_status, duration, user_id, category, was_suspended from builds WHERE was_suspended=False ${excluded_configuration}`, []);
+  get_rows(req, res, `SELECT day, schema, build_status, duration, user_id, category, was_suspended from builds WHERE was_suspended=False ${excluded_configuration} order by day asc`, []);
 });
 
 app.get('/schemas', (req, res) => {
